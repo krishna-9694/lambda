@@ -9,7 +9,7 @@ const { chromium, _android } = require('playwright')
 const cp = require('child_process');
 const playwrightClientVersion = cp.execSync('npx playwright --version').toString().trim().split(' ')[1];
 
-if (process.env.executeOn !== "local") {
+if (process.env.executeOn === "lambdatest") {
 
   // LambdaTest capabilities
   const capabilities = {
@@ -26,8 +26,7 @@ if (process.env.executeOn !== "local") {
       'network': true,
       'video': true,
       'console': true,
-      'tunnel': true, // Add tunnel configuration if testing locally hosted webpage
-      "tunnelName": "test", // Optional
+      'tunnel': false, // Set to false when using geo-location
       'geoLocation': 'IN', // country code can be fetched from https://www.lambdatest.com/capabilities-generator/
       'playwrightClientVersion': playwrightClientVersion
     }
@@ -64,7 +63,9 @@ if (process.env.executeOn !== "local") {
       // Configure LambdaTest platform for cross-browser testing
       let fileName = testInfo.file.split(path.sep).pop()
       if (testInfo.project.name.match(/lambdatest/)) {
+        console.log('🚀 Connecting to LambdaTest for:', testInfo.title);
         modifyCapabilities(testInfo.project.name, `${testInfo.title} - ${fileName}`)
+        console.log('📋 Capabilities:', JSON.stringify(capabilities, null, 2));
         let device, context, browser, ltPage;
 
         // Check if its a desktop or an android test
@@ -102,36 +103,7 @@ if (process.env.executeOn !== "local") {
         await use(page)
       }
     },
-    beforeEach: [
-      async ({ page }, use) => {
-        await page
-          .context()
-          .tracing.start({ screenshots: true, snapshots: true, sources: true });
-        await use();
-      },
-      { auto: true },
-    ],
 
-    afterEach: [
-      async ({ page }, use, testInfo) => {
-        await use();
-        if (testInfo.status == "failed") {
-          await page
-            .context()
-            .tracing.stop({ path: `${testInfo.outputDir}/trace.zip` });
-          await page.screenshot({ path: `${testInfo.outputDir}/screenshot.png` });
-          await testInfo.attach("screenshot", {
-            path: `${testInfo.outputDir}/screenshot.png`,
-            contentType: "image/png",
-          });
-          await testInfo.attach("trace", {
-            path: `${testInfo.outputDir}/trace.zip`,
-            contentType: "application/zip",
-          });
-        }
-      },
-      { auto: true },
-    ],
   });
 } else {
   // Fallback to local if `executeOn` is not set to `lambdatest`
