@@ -11,18 +11,20 @@ const playwrightClientVersion = cp.execSync('npx playwright --version').toString
   const capabilities = {
     'browserName': 'Chrome', // Browsers allowed: `Chrome`, `MicrosoftEdge`, `pw-chromium`, `pw-firefox` and `pw-webkit`
     'browserVersion': 'latest',
-    'LT:Options': {
+     'LT:Options':
+    {
       'platform': 'Windows 10',
-      'build': 'Playwright Single Build',
-      'name': 'Playwright Sample Test',
+      "browserVersion": "138.0",
+      "name": "lambda",
+      "build": "krishnalambdatest101",
       'user': process.env.LT_USERNAME,
       'accessKey': process.env.LT_ACCESS_KEY,
       'network': true,
       'video': true,
       'console': true,
       'tunnel': false, // Add tunnel configuration if testing locally hosted webpage
-      'tunnelName': '', // Optional
-      'geoLocation': '', // country code can be fetched from https://www.lambdatest.com/capabilities-generator/
+      "tunnelName": "test", // Optional
+      'geoLocation': 'IN', // country code can be fetched from https://www.lambdatest.com/capabilities-generator/
       'playwrightClientVersion': playwrightClientVersion
     }
   }
